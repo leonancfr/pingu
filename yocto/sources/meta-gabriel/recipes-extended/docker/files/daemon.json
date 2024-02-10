@@ -1,0 +1,14 @@
+{
+    "log-driver": "json-file",
+    "log-opts": {
+      "max-size": "20m",
+      "max-file": "20"
+    },
+    "default-address-pools": [{
+        "base":"10.10.0.0/16",
+        "size":24
+    }],
+    "hosts": [
+        "unix:///var/run/docker.sock"
+    ]
+}

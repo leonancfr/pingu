@@ -1,0 +1,11 @@
+[Unit]
+Description=Modem handler service
+
+[Service]
+RuntimeMaxSec=infinity
+Restart=always
+RestartSec=60s
+ExecStart=python3 /opt/gabriel/bin/modem-manager.py
+
+[Install]
+WantedBy=multi-user.target

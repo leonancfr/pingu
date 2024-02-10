@@ -1,0 +1,13 @@
+yocto/sources/meta-openembedded/
+yocto/sources/meta-raspberrypi/
+yocto/sources/meta-virtualization/
+yocto/sources/poky/
+yocto/build/bitbake-cookerdaemon.log  
+yocto/build/cache  
+yocto/build/downloads
+yocto/build/sstate-cache
+yocto/build/tmp
+yocto/build/tmp-glibc
+yocto/build/conf/templateconf.cfg
+yocto/.bash_history
+yocto/.cargo/.package-cache

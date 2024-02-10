@@ -1,0 +1,11 @@
+[Unit]
+Description=Block device checker
+
+[Service]
+RuntimeMaxSec=10min
+Restart=always
+RestartSec=3min
+ExecStart=/opt/gabriel/bin/block-device-checker.sh
+
+[Install]
+WantedBy=modem-manager.service

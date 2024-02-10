@@ -1,0 +1,15 @@
+[Unit]
+Description=Disable EEE
+Requires=network.target
+After=network.target prapare-system-rev.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=sudo ethtool --set-eee cameras0 eee off
+ExecStart=sudo ethtool --set-eee eth0 eee off
+Restart=on-failure
+RestartSec=20m
+
+[Install]
+WantedBy=multi-user.target

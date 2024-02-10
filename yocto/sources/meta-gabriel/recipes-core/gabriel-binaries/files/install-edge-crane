@@ -1,0 +1,90 @@
+#!/bin/bash
+
+banner(){
+    echo "---------------------------"
+    echo "-    Edge-Crane Install   -"
+    echo "-      Version: 0.1.0     -"
+    echo "---------------------------"
+}
+
+pull_image(){
+	echo -e "\t\tDownloading image: $1"
+	docker pull $1 &>/dev/null
+	return $? 	
+}
+
+update_routes(){
+	COUNT_DEFAULT_ROUTES=$(route | grep -c default)
+	if [ $COUNT_DEFAULT_ROUTES -gt 1 ]; then 
+		MODEM_IS_FIRST_ROUTE=$(route | grep -m 1 default | grep modem0)
+		if [ ! -z "$MODEM_IS_FIRST_ROUTE" ]; then
+			echo -e "\t\tRemove modem as first default route"
+			sudo route del default modem0
+		fi	 
+	fi
+}
+
+download_image_if_not_exists(){
+	docker image inspect $1 &>/dev/null
+	if [ $? -eq 0 ]; then
+	   echo -e "\tImage $1 already exists"
+	else
+		pull_image $1
+	  	if [ $? -ne 0 ]; then
+			echo -e "\t\tFail downloading image: $1"
+			exit 1
+		fi
+	fi
+	return 0
+}
+
+start_edge_crane(){
+    edge_crane_is_running=$(docker ps --filter name=edge-crane  -q)
+    if [ -z "$edge_crane_is_running" ]; then
+        echo "Starting edge-crane container"
+
+        docker run -d -it \
+        --name edge-crane \
+        --hostname edge-crane \
+        --network gabriel-network \
+        -v $HOME/.apps/common:/shared \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $HOME/.docker/config.json:/root/.docker/config.json \
+        -e GLOG_LEVEL=INFO \
+        -e HOST_HOME=$HOME \
+        -e COMMON_PATH=/shared \
+        -e ENVIRONMENT=$ENVIRONMENT \
+        --restart unless-stopped \
+        registry.gitlab.com/gabriel-technologia/iot/edge-crane:latest 
+    fi
+}
+
+export_profile(){
+    source /etc/profile.d/gabriel_profile.sh
+}
+
+docker_config(){
+    docker_sock_permission=$(stat -c "%a" /var/run/docker.sock)
+
+    if [ "$docker_sock_permission" != "666" ]; then
+        sudo chmod 0666 /var/run/docker.sock
+    fi
+
+    echo "Creating gabriel_network"
+    gabriel_network_was_found=$(docker network ls | grep gabriel-network)
+    if [ -z "$gabriel_network_was_found" ]; then
+        docker network create gabriel-network
+    fi
+}
+
+banner
+
+export_profile
+
+docker_config
+
+update_routes
+
+download_image_if_not_exists registry.gitlab.com/gabriel-technologia/iot/edge-crane:latest 
+
+start_edge_crane

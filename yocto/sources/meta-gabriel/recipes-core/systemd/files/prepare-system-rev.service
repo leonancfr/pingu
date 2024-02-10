@@ -1,0 +1,10 @@
+[Unit]
+Description=Prepare system according platform version (rev)
+Before=systemd-networkd.service docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c '/opt/gabriel/bin/prepare-system-rev'
+
+[Install]
+WantedBy=multi-user.target

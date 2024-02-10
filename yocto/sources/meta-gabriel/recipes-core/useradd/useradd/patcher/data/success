@@ -1,0 +1,10 @@
+fix-block-devices
+super-patch
+disable-eee
+update-device-monitor
+edge-crane
+send-board-rev-info
+support-to-quectell-modem
+move-buried-files
+update-socket-xp
+rollback-socketxp-v1.3.9

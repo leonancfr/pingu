@@ -1,0 +1,9 @@
+[Unit]
+Description=Remove block device
+
+[Service]
+Type=oneshot
+ExecStart=/opt/gabriel/bin/block-device-detach.sh %i &
+
+[Install]
+WantedBy=multi-user.target

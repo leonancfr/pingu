@@ -1,0 +1,9 @@
+[Unit]
+Description=Add block device
+
+[Service]
+Type=oneshot
+ExecStart=/opt/gabriel/bin/block-device-attach.sh %i &
+
+[Install]
+WantedBy=multi-user.target

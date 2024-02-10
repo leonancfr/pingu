@@ -1,0 +1,10 @@
+[Unit]
+Description=rp2040 service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStop=/usr/bin/python3 /opt/gabriel/bin/rp2040stop.py
+
+[Install]
+WantedBy=multi-user.target

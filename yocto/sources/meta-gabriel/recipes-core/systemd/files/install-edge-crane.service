@@ -1,0 +1,15 @@
+[Unit]
+Description=Install edge-crane container
+After=prepare-data-apps.service
+Wants=prepare-data-apps.service
+
+[Service]
+User=gabriel
+WorkingDirectory=/home/gabriel
+Restart=on-failure
+RestartSec=20s
+ExecStart=/bin/bash -c /opt/gabriel/bin/install-edge-crane
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

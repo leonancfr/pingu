@@ -1,0 +1,107 @@
+#!/bin/bash
+
+DB_PATH=/home/gabriel/.apps/common/gabriel.db
+SERIAL_NUMBER_PATH=/sys/firmware/devicetree/base/serial-number
+SETUP_JSON_PATH=/home/gabriel/.apps/common/setup.json
+
+declare -A levels=([DEBUG]=7 [INFO]=6 [NOTICE]=5 [WARNING]=4 [ERR]=3 [CRIT]=2 [ALERT]=1 [EMERG]=0)
+log(){
+    local log_level=$1
+    local message=$2
+    if [ ${levels[$log_level]} ]; then
+        echo "<${levels[$log_level]}>$message"
+    else
+        echo "<1> Invalid loglevel in message: $message"
+    fi    
+}
+
+get_filesystem_id(){ 
+    local filesystem_id=$(lsblk -f | grep root | awk '{ print $4 }')
+    echo $filesystem_id
+}
+
+get_serial_number(){
+    if [ -f $SERIAL_NUMBER_PATH ]; then
+        echo "$(awk '{print $1}' $SERIAL_NUMBER_PATH)"
+        return 0
+    fi
+    return 1
+}
+
+get_ip_from_interface(){
+    (ip -f inet addr show $1 | sed -En -e 's/.*inet ([0-9.]+).*/\1/p') 2>/dev/null
+}
+
+create_table_if_not_exists(){
+    if [ -f $DB_PATH ]; then
+        local ret=$(sqlite3 $DB_PATH "CREATE TABLE IF NOT EXISTS deviceinfo (serial_number text, filesystem_id text, network_address text, docker_address text);")
+        return 0
+    fi
+    return 1
+}
+
+get_last_register(){
+    local ret=$(sqlite3 $DB_PATH "SELECT * FROM deviceInfo LIMIT 1;")
+    echo $ret
+}
+
+insert_into_table(){
+    sqlite3 $DB_PATH "INSERT INTO deviceinfo (serial_number, filesystem_id, network_address, docker_address) VALUES ('$1','$2','$3','$4');"
+}
+
+update_data(){
+    sqlite3 $DB_PATH "UPDATE deviceinfo SET serial_number = '$1', filesystem_id = '$2', network_address = '$3', docker_address = '$4';"
+}
+
+create_setup_json_file(){
+    echo -n "{\"hardware_information\": {\"serial_number\": \"$1\", \"filesystem_id\": \"$2\", \"network_address\": \"$3\", \"docker_address\": \"$4\"}}" > $SETUP_JSON_PATH
+}
+
+main(){
+    log "NOTICE" "Runnig device-info at: $(date)"
+
+    filesystem_id=$(get_filesystem_id)
+    if [ -z "$filesystem_id" ]; then
+        log "WARNING" "Failed to get filesystem_id into $SERIAL_NUMBER_PATH"
+    fi
+    
+    serial_number=$(get_serial_number)  
+    if [ -z "$serial_number" ]; then
+        log "WARNING" "Failed to collect serial_number"
+    fi
+
+    tun0_ip=$(get_ip_from_interface tun0)
+    if [ -z "$tun0_ip" ];  then
+        log "WARNING" "Failed to get tun0 IP, setting this to 0.0.0.0"
+        tun0_ip="0.0.0.0"
+    fi
+
+    docker0_ip=$(get_ip_from_interface docker0)  
+    if [ -z "$docker0_ip" ];  then
+        log "WARNING" "Failed to get tun0 docker0 IP, setting this to 0.0.0.0"
+        docker0_ip="0.0.0.0"
+    fi
+
+    log "NOTICE" "Data collected: filesystem_id: $filesystem_id, serial_number: $serial_number, tun0_ip: $tun0_ip, docker0_ip: $docker0_ip"
+
+    create_table_if_not_exists
+    if [ $? -eq 0 ]; then
+        if [ -z "$(get_last_register)" ]; then
+            log "NOTICE" "Inserting data collected into deviceinfo table"
+            insert_into_table "$serial_number" "$filesystem_id" "$tun0_ip" "$docker0_ip"
+        else
+            log "NOTICE" 'Writing data into deviceinfo table'
+            update_data "$serial_number" "$filesystem_id" "$tun0_ip" "$docker0_ip"
+        fi
+    else
+        log "ERR" "Failed to connect to the database"
+    fi 
+    
+    log "NOTICE" 'Writing data into setup.json'
+    create_setup_json_file "$serial_number" "$filesystem_id" "$tun0_ip" "$docker0_ip"
+    if [ $? -ne 0 ]; then
+        log "ERR" "Failed to write setup.json"
+    fi
+}
+
+main

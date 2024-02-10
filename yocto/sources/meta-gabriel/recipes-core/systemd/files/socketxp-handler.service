@@ -1,0 +1,10 @@
+[Unit]
+Description=Pingu's script to handle SocketXP
+
+[Service]
+Restart=on-failure
+RestartSec=3s
+ExecStart=/usr/bin/python3 /opt/gabriel/bin/socket_xp_handler.py
+
+[Install]
+WantedBy=multi-user.target

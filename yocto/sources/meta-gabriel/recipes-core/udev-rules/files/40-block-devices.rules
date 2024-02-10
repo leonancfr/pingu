@@ -1,0 +1,4 @@
+
+ACTION=="add", KERNEL=="sd[a-z]", ENV{SYSTEMD_WANTS}="block-device-attach@%k.service"
+ACTION=="change", KERNEL=="sd[a-z]", ENV{SYSTEMD_WANTS}="block-device-change@%k.service"
+ACTION=="remove", KERNEL=="sd[a-z]", ENV{SYSTEMD_WANTS}="block-device-remove@%k.service"

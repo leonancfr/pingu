@@ -1,0 +1,19 @@
+#!/bin/sh
+
+. /opt/gabriel/bin/board-rev-info.sh
+
+result=$(get_board_rev)
+
+if [ "$result" = "Unknown board revision" ]; then
+    echo "An unkown board revision was found. Please, call to engineer team."
+    exit 1
+else
+    echo "This board is $result."
+    if [ "$result" = "rev4" ]; then
+        # Turn on the modem in Rev4
+        sudo echo 18 > /sys/class/gpio/export
+        sudo echo out > /sys/class/gpio/gpio18/direction
+        sudo echo 1 > /sys/class/gpio/gpio18/value
+    fi
+    exit 0
+fi

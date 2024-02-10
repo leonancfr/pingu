@@ -1,0 +1,31 @@
+#!/bin/bash
+
+create_pingu_updater_if_not_exists(){
+    echo "Check Pingu Updater"
+    if [ ! -d /home/gabriel/.pingu_updater ]; then
+        echo -e "\tDownloading Pingu Updater"
+        git clone https://oauth2:glpat-o52zhGzNjsXwmmnLGJtC@gitlab.com/gabriel-technologia/iot/pingu-updater.git -b main /home/gabriel/.pingu_updater &>/dev/null
+        [[ $? == 0 ]] && echo -e "\t\tSUCCESS.\n" && return 0 || echo -e "\t\tFAIL\n" && return 1  
+    else
+        echo -e "\tPingu Updater already exists\n"
+        return 0
+    fi
+}
+
+update_pingu_updater(){
+    echo "Updating Pingu Updater"
+
+    git -C /home/gabriel/.pingu_updater pull &>/dev/null
+
+    [[ $? == 0 ]] && echo -e "\tSUCCESS\n" && return 0 || echo -e "\tFAIL\n" && return 1
+}
+
+
+echo "---------------------"
+echo "----Version 0.1.0----"
+echo "---------------------"
+echo ""
+
+create_pingu_updater_if_not_exists && update_pingu_updater && cd /home/gabriel/.pingu_updater && python3 ./src/software_updater.py && exit 0 || exit 1 
+
+echo ""

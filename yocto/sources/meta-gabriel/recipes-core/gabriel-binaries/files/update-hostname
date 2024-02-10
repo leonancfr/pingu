@@ -1,0 +1,14 @@
+#!/bin/bash
+
+serial=$(grep Serial /proc/cpuinfo | cut -d':' -f2 | xargs)
+host_name=$(cat /etc/hostname)
+if [ "$host_name" != "$serial" ]; then
+    sudo sed -i "0,/${host_name}/s//${serial}/" /etc/hostname
+    sudo sed -i "/${host_name}/s//${serial}/" /etc/hosts
+    sudo hostnamectl set-hostname ${serial}
+    sudo systemctl restart avahi-daemon
+
+    /opt/gabriel/bin/populate-device-info
+    
+fi
+exit 0

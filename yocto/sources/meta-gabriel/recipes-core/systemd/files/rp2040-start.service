@@ -1,0 +1,11 @@
+[Unit]
+Description=rp2040 service
+
+[Service]
+RuntimeMaxSec=infinity
+Restart=always
+RestartSec=3min
+ExecStart=/usr/bin/python3 /opt/gabriel/bin/rp2040start.py
+
+[Install]
+WantedBy=multi-user.target

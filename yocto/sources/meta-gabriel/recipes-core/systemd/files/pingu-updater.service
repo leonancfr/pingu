@@ -1,0 +1,13 @@
+[Unit]
+Description=Update Pingu OS (°)>
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=gabriel
+Restart=always
+RestartSec=20min
+ExecStart=/opt/gabriel/bin/pingu-updater
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+create_file(){
+    mkdir -p "$(dirname "$1")" && touch "$1"
+}
+
+echo "Creating data apps, if not exists"
+
+if [ ! -f /home/gabriel/.apps/common/gabriel.db ]; then
+    create_file /home/gabriel/.apps/common/gabriel.db
+fi
+
+if [ ! -f /home/gabriel/.apps/common/setup.json ]; then
+    create_file /home/gabriel/.apps/common/setup.json
+fi
+
+/opt/gabriel/bin/populate-device-info
+
+chown -R gabriel.gabriel /home/gabriel/.apps/common/gabriel.db
+chown -R gabriel.gabriel /home/gabriel/.apps/common/setup.json

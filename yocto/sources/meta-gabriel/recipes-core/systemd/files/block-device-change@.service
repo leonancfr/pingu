@@ -1,0 +1,9 @@
+[Unit]
+Description=Change block device
+
+[Service]
+Type=oneshot
+ExecStart=/opt/gabriel/bin/block-device-change.sh %i &
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Move buried files to default dir
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1800
+ExecStart=/opt/gabriel/bin/move-buried-files.sh
+
+[Install]
+WantedBy=multi-user.target

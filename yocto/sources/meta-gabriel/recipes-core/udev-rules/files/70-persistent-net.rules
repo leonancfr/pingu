@@ -1,0 +1,4 @@
+SUBSYSTEM=="net", ACTION=="add", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="eth0",  PROGRAM="/opt/gabriel/bin/check_eth_native",NAME="%c"
+SUBSYSTEM=="net", ACTION=="add", ATTRS{idVendor}=="2357", ATTRS{idProduct}=="0601", PROGRAM="/opt/gabriel/bin/check_eth_usb", NAME="%c"
+SUBSYSTEM=="net", ACTION=="add", ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="8153", PROGRAM="/opt/gabriel/bin/check_eth_usb", NAME="%c"
+SUBSYSTEM=="net", ACTION=="add", ATTRS{idVendor}=="2c7c", ATTRS{idProduct}=="0125", NAME="modem0"

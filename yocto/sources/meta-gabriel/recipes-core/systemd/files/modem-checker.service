@@ -1,0 +1,13 @@
+[Unit]
+Description=Modem checker service
+After=modem-manager.service
+Wants=modem-manager.service
+
+[Service]
+RuntimeMaxSec=infinity
+Restart=always
+RestartSec=3min
+ExecStart=python3 /opt/gabriel/bin/modem-checker.py
+
+[Install]
+WantedBy=modem-manager.service

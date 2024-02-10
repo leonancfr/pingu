@@ -1,0 +1,15 @@
+#!/bin/sh
+
+. /opt/gabriel/bin/board-rev-info.sh
+
+result=$(get_board_rev)
+
+if [ "$result" = "Unknown board revision" ]; then
+    echo "cameras0"
+else
+    if [ "$result" = "rev4" ]; then
+        echo "cameras0"
+    else
+        echo "eth0"
+    fi
+fi

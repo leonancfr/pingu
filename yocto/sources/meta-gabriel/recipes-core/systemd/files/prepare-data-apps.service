@@ -1,0 +1,12 @@
+[Unit]
+Description=Prepare data to Apps
+After=docker.service prapare-system-rev.service
+Wants=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=20s
+ExecStart=/opt/gabriel/bin/prepare-data-apps
+
+[Install]
+WantedBy=multi-user.target
